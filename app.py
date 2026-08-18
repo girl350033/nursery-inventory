@@ -58,7 +58,7 @@ if uploaded_file is not None:
   image = Image.open(uploaded_file)
   st.image(image, caption="已上傳的物品", use_container_width=True)
 
-  if st.button("🚀 開始 AI 辨識 (OpenAI)"):
+  if st.button("🚀 開始辨識"):
     if not openai_api_key:
       st.error("請先在左側欄位輸入 OpenAI API Key！")
     else:
@@ -136,7 +136,7 @@ if uploaded_file is not None:
         except Exception as e:
           st.error(f"辨識發生錯誤: {e}")
 
-# 4. 同步到 Notion 按鈕（包含文字、數字與照片欄位同步）
+# 4. 同步到 Notion 按鈕
 if "item_data" in st.session_state:
   if st.button("📤 一鍵同步至 Notion 資料庫"):
     if not notion_token or not notion_database_id:
@@ -147,7 +147,6 @@ if "item_data" in st.session_state:
           notion = Client(auth=notion_token)
           data = st.session_state["item_data"]
 
-          # 對應您 Notion 的欄位設定（數量與金額為 number，其餘為 text/title）
           properties = {
               "品名": {"title": [{"text": {"content": data["name"]}}]},
               "規格": {"rich_text": [{"text": {"content": data["spec"]}}]},
@@ -157,7 +156,6 @@ if "item_data" in st.session_state:
               "備註": {"rich_text": [{"text": {"content": data["remark"]}}]},
           }
 
-          # 將照片同步寫入 Notion 的「照片」欄位 (Files & media)
           image_url = upload_to_imgur(uploaded_file)
           if image_url:
             properties["照片"] = {
@@ -174,4 +172,4 @@ if "item_data" in st.session_state:
               "🎉 成功同步！資料與照片已完整寫入您的 Notion 財產清冊中。"
           )
         except Exception as e:
-          st.error(f"Notion 同步失敗: {e}")ㄇ
+          st.error(f"Notion 同步失敗: {e}")
