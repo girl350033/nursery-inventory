@@ -9,7 +9,7 @@ import streamlit as st
 
 # 1. 頁面設定
 st.set_page_config(
-    page_title="托嬰中心 盤點與採購助手", page_icon="🧸", layout="centered"
+    page_title="托嬰中心 財產清冊", page_icon="🧸", layout="centered"
 )
 
 st.title("🧸 托嬰中心 材產清冊")
