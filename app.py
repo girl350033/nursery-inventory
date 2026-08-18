@@ -131,14 +131,12 @@ if "item_data" in st.session_state:
           notion = Client(auth=notion_token)
           data = st.session_state["item_data"]
 
-          # 建立 Notion 資料庫頁面的屬性
+          # 建立 Notion 資料庫頁面的屬性（數量與金額改回 number 型態）
           properties = {
               "品名": {"title": [{"text": {"content": data["name"]}}]},
               "規格": {"rich_text": [{"text": {"content": data["spec"]}}]},
-              "數量": {"rich_text": [{"text": {"content": str(data["qty"])}}]},
-              "金額": {
-                  "rich_text": [{"text": {"content": str(data["price"])}}]
-              },
+              "數量": {"number": int(data["qty"])},  # 改為 number
+              "金額": {"number": float(data["price"])},  # 改為 number
               "用途": {"rich_text": [{"text": {"content": data["purpose"]}}]},
               "備註": {"rich_text": [{"text": {"content": data["remark"]}}]},
           }
