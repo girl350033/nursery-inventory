@@ -14,7 +14,7 @@ st.set_page_config(
 st.title("🧸 托嬰中心 AI 智慧盤點與 Notion 同步工具 (OpenAI 版)")
 st.write("上傳物品照片，AI 將自動辨識欄位並一鍵同步至您的 Notion 資料庫！")
 
-# 2. 設定 API 金鑰
+# 2. 手動輸入 API 金鑰與資料庫 ID
 with st.sidebar:
   st.header("⚙️ 設定 API 金鑰")
   openai_api_key = st.text_input("OpenAI API Key", type="password")
@@ -22,7 +22,7 @@ with st.sidebar:
   notion_database_id = st.text_input("Notion Database ID", type="text")
 
 
-# 輔助函式：將圖片轉為 base64 格式傳給 OpenAI
+# 輔助函式：將圖片轉為 base64
 def encode_image(uploaded_file):
   return base64.b64encode(uploaded_file.getvalue()).decode("utf-8")
 
@@ -91,7 +91,6 @@ if uploaded_file is not None:
 
           st.success("辨識成功！請確認下方欄位內容：")
 
-          # 讓使用者可以手動微調
           edited_name = st.text_input("品名", item_data.get("品名", ""))
           edited_spec = st.text_input("規格", item_data.get("規格", ""))
           edited_qty = st.number_input(
@@ -103,7 +102,6 @@ if uploaded_file is not None:
           edited_purpose = st.text_input("用途", item_data.get("用途", ""))
           edited_remark = st.text_input("備註", item_data.get("備註", ""))
 
-          # 儲存到 Session State 以便下一步同步
           st.session_state["item_data"] = {
               "name": edited_name,
               "spec": edited_spec,
@@ -131,7 +129,7 @@ if "item_data" in st.session_state:
             properties={
                 "名稱": {
                     "title": [{"text": {"content": data["name"]}}]
-                },  # 請確保 Notion 資料庫有這個標題欄位
+                },
                 "規格": {
                     "rich_text": [{"text": {"content": data["spec"]}}]
                 },
