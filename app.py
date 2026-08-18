@@ -14,14 +14,15 @@ st.set_page_config(
 st.title("🧸 托嬰中心 AI 智慧盤點與 Notion 同步工具 (OpenAI 版)")
 st.write("上傳物品照片，AI 將自動辨識欄位並一鍵同步至您的 Notion 資料庫！")
 
-# 2. 手動輸入 API 金鑰與資料庫 ID
+# 2. 手動輸入 API 金鑰 (Base ID 已內建)
 with st.sidebar:
   st.header("⚙️ 設定 API 金鑰")
   openai_api_key = st.text_input("OpenAI API Key", type="password")
   notion_token = st.text_input("Notion Integration Token", type="password")
+  # 將 Database ID 預設值內建在 value 參數中
   notion_database_id = st.text_input(
-      "Notion Database ID"
-  )  # 已移除 type="text" 修正錯誤
+      "Notion Database ID", value="3c004312bb1c809e90dcddd011013c4b"
+  )
 
 
 # 輔助函式：將圖片轉為 base64
