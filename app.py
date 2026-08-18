@@ -8,11 +8,11 @@ import streamlit as st
 
 # 1. 頁面設定
 st.set_page_config(
-    page_title="托嬰中心 AI 盤點與採購助手", page_icon="🧸", layout="centered"
+    page_title="托嬰中心 盤點與採購", page_icon="🧸", layout="centered"
 )
 
-st.title("🧸 托嬰中心 AI 智慧盤點與 Notion 同步工具 (OpenAI 版)")
-st.write("上傳物品照片，AI 將自動辨識欄位並一鍵同步至您的 Notion 資料庫！")
+st.title("🧸 托嬰中心 財產清冊紀錄")
+st.write("上傳物品照片後一鍵同步至您的 Notion 資料庫！")
 
 # 2. 手動輸入 API 金鑰 (Base ID 已內建)
 with st.sidebar:
@@ -39,11 +39,11 @@ if uploaded_file is not None:
   image = Image.open(uploaded_file)
   st.image(image, caption="已上傳的物品", use_column_width=True)
 
-  if st.button("🚀 開始 AI 辨識 (OpenAI)"):
+  if st.button("🚀 開始辨識"):
     if not openai_api_key:
       st.error("請先在左側欄位輸入 OpenAI API Key！")
     else:
-      with st.spinner("OpenAI 正在分析物品中..."):
+      with st.spinner("正在分析物品中..."):
         try:
           client = OpenAI(api_key=openai_api_key)
           base64_image = encode_image(uploaded_file)
