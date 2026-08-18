@@ -55,7 +55,7 @@ with st.sidebar:
 
     notion_database_id = st.text_input(
         "Notion Database ID",
-        value="3c004312bb1c809e90dcddd011013c4b",
+        value="2b41493c6fe646d2a3dea2b0b8f37a3b",
     )
 
     st.divider()
