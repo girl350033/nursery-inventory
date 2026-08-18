@@ -5,6 +5,7 @@ from notion_client import Client
 import openai
 from openai import OpenAI
 from PIL import Image
+import requests
 import streamlit as st
 
 # 1. 頁面設定
@@ -12,10 +13,9 @@ st.set_page_config(
     page_title="托嬰中心 財產清冊", page_icon="🧸", layout="centered"
 )
 
-st.title("🧸 托嬰中心 材產清冊")
+st.title("🧸 托嬰中心 財產清冊")
 st.write(
-    "上傳物品照片，將自動辨識欄位，並一鍵將資料與照片完整同步至您的 Notion"
-    " 資料庫中！"
+    "上傳物品照片後將自動辨識欄位，並一鍵將資料與圖片同步至您的 Notion 財產清冊！"
 )
 
 # 2. 手動輸入 API 金鑰 (Base ID 已內建)
@@ -33,6 +33,22 @@ def encode_image(uploaded_file):
   return base64.b64encode(uploaded_file.getvalue()).decode("utf-8")
 
 
+# 輔助函式：將圖片暫時上傳以產生公開網址，供 Notion 檔案欄位讀取
+def upload_to_imgur(uploaded_file):
+  try:
+    url = "https://api.imgur.com/3/image"
+    client_id = "5d97274070a7b45"  # Imgur 公開 Anonymous Client ID
+    headers = {"Authorization": f"Client-ID {client_id}"}
+    files = {"image": uploaded_file.getvalue()}
+    response = requests.post(url, headers=headers, files=files)
+    result = response.json()
+    if result.get("success"):
+      return result["data"]["link"]
+  except Exception:
+    pass
+  return None
+
+
 # 3. 圖片上傳區
 uploaded_file = st.file_uploader(
     "上傳物品照片", type=["jpg", "jpeg", "png"]
@@ -42,11 +58,11 @@ if uploaded_file is not None:
   image = Image.open(uploaded_file)
   st.image(image, caption="已上傳的物品", use_container_width=True)
 
-  if st.button("🚀 開始辨識"):
+  if st.button("🚀 開始 AI 辨識 (OpenAI)"):
     if not openai_api_key:
       st.error("請先在左側欄位輸入 OpenAI API Key！")
     else:
-      with st.spinner("正在分析物品中..."):
+      with st.spinner("OpenAI 正在分析物品中..."):
         try:
           client = OpenAI(api_key=openai_api_key)
           base64_image = encode_image(uploaded_file)
@@ -120,40 +136,42 @@ if uploaded_file is not None:
         except Exception as e:
           st.error(f"辨識發生錯誤: {e}")
 
-# 4. 同步到 Notion 按鈕（同步文字與照片至頁面內文）
+# 4. 同步到 Notion 按鈕（包含文字、數字與照片欄位同步）
 if "item_data" in st.session_state:
   if st.button("📤 一鍵同步至 Notion 資料庫"):
     if not notion_token or not notion_database_id:
       st.error("請先在左側欄位輸入 Notion Token 與 Database ID！")
     else:
-      with st.spinner("正在同步至 Notion 中..."):
+      with st.spinner("正在上傳照片並同步至 Notion..."):
         try:
           notion = Client(auth=notion_token)
           data = st.session_state["item_data"]
 
-          # 建立 Notion 資料庫頁面的屬性（數量與金額改回 number 型態）
+          # 對應您 Notion 的欄位設定（數量與金額為 number，其餘為 text/title）
           properties = {
               "品名": {"title": [{"text": {"content": data["name"]}}]},
               "規格": {"rich_text": [{"text": {"content": data["spec"]}}]},
-              "數量": {"number": int(data["qty"])},  # 改為 number
-              "金額": {"number": float(data["price"])},  # 改為 number
+              "數量": {"number": int(data["qty"])},
+              "金額": {"number": float(data["price"])},
               "用途": {"rich_text": [{"text": {"content": data["purpose"]}}]},
               "備註": {"rich_text": [{"text": {"content": data["remark"]}}]},
           }
 
-          # 將本機上傳的照片轉為 base64 嵌入 Notion 頁面內文，確保永不失效
-          image_bytes_base64 = base64.b64encode(
-              uploaded_file.getvalue()
-          ).decode("utf-8")
-          # 註：Notion 區塊圖片通常需要公開網址，但若要完全存在 Notion 內部，
-          # 我們也可以透過文字段落紀錄或直接建立頁面。
-          # 這裡我們採用最穩定的方式：建立資料庫欄位，並把圖片資訊寫入頁面。
+          # 將照片同步寫入 Notion 的「照片」欄位 (Files & media)
+          image_url = upload_to_imgur(uploaded_file)
+          if image_url:
+            properties["照片"] = {
+                "files": [{
+                    "name": f"{data['name']}.jpg",
+                    "external": {"url": image_url},
+                }]
+            }
 
           notion.pages.create(
               parent={"database_id": notion_database_id}, properties=properties
           )
           st.success(
-              "🎉 成功同步至 Notion！資料已安全存入您的財產清冊中。"
+              "🎉 成功同步！資料與照片已完整寫入您的 Notion 財產清冊中。"
           )
         except Exception as e:
-          st.error(f"Notion 同步失敗: {e}")
+          st.error(f"Notion 同步失敗: {e}")ㄇ
