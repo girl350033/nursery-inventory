@@ -19,7 +19,9 @@ with st.sidebar:
   st.header("⚙️ 設定 API 金鑰")
   openai_api_key = st.text_input("OpenAI API Key", type="password")
   notion_token = st.text_input("Notion Integration Token", type="password")
-  notion_database_id = st.text_input("Notion Database ID", type="text")
+  notion_database_id = st.text_input(
+      "Notion Database ID"
+  )  # 已移除 type="text" 修正錯誤
 
 
 # 輔助函式：將圖片轉為 base64
