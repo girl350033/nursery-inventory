@@ -11,15 +11,15 @@ from openai import OpenAI
 # =========================================================
 
 st.set_page_config(
-    page_title="托嬰中心 AI 盤點與採購助手",
+    page_title="托嬰中心 財產清冊",
     page_icon="🧸",
     layout="centered",
 )
 
-st.title("🧸 托嬰中心 AI 智慧盤點與 Notion 同步工具")
+st.title("🧸 托嬰中心 財產清冊")
 
 st.write(
-    "上傳物品照片後，AI 會自動辨識品名、規格、數量、金額、用途及備註，"
+    "上傳物品照片後會自動辨識品名、規格、數量、金額、用途及備註，"
     "確認後可直接將資料與照片同步到 Notion 財產清冊。"
 )
 
